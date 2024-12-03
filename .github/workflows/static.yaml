@@ -28,7 +28,7 @@ permissions:
   id-token: write
   attestations: write
 env:
-  IMAGE_NAME: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.version) || startsWith(github.ref, 'refs/tags/')) && 'dunglas/frankenphp' || 'dunglas/frankenphp-dev' }}    
+  IMAGE_NAME: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.version) || startsWith(github.ref, 'refs/tags/')) && 'ckn01/frankenphp' || 'ckn01/frankenphp-dev' }}    
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
         run: |
           ref="${{ (github.ref_type == 'tag' && github.ref_name) || (github.event_name == 'workflow_dispatch' && inputs.version) || '' }}"
           if [[ -z "${ref}" ]]; then
-            ref="$(gh release view --repo dunglas/frankenphp --json tagName --jq '.tagName')"
+            ref="$(gh release view --repo ckn01/frankenphp --json tagName --jq '.tagName')"
           fi
 
           echo "ref=${ref}" >> "${GITHUB_OUTPUT}"
@@ -86,7 +86,7 @@ jobs:
           -
             platform: linux/amd64
             qemu: false
-            debug: true
+            debug: false
           -
             platform: linux/amd64
             qemu: false
@@ -180,7 +180,7 @@ jobs:
       -
         name: Upload special assets
         if: fromJson(needs.prepare.outputs.push) && (matrix.debug || matrix.mimalloc) && (needs.prepare.outputs.ref || github.ref_type == 'tag')
-        run: gh release upload "${{ (github.ref_type == 'tag' && github.ref_name) || needs.prepare.outputs.ref }}" frankenphp-linux-x86_64${{ matrix.debug && '-debug' || '' }}${{ matrix.mimalloc && '-mimalloc' || '' }} --repo dunglas/frankenphp --clobber
+        run: gh release upload "${{ (github.ref_type == 'tag' && github.ref_name) || needs.prepare.outputs.ref }}" frankenphp-linux-x86_64${{ matrix.debug && '-debug' || '' }}${{ matrix.mimalloc && '-mimalloc' || '' }} --repo ckn01/frankenphp --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
@@ -239,7 +239,7 @@ jobs:
       -
         name: Upload asset
         if: needs.prepare.outputs.ref || github.ref_type == 'tag'
-        run: gh release upload "${{ (github.ref_type == 'tag' && github.ref_name) || needs.prepare.outputs.ref }}" frankenphp-linux-x86_64 frankenphp-linux-aarch64 --repo dunglas/frankenphp --clobber
+        run: gh release upload "${{ (github.ref_type == 'tag' && github.ref_name) || needs.prepare.outputs.ref }}" frankenphp-linux-x86_64 frankenphp-linux-aarch64 --repo ckn01/frankenphp --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
